@@ -1,0 +1,832 @@
+What is Docker ?
+======================
+Docker is a Containerization Platform which allows us to containerize an application/software
+ (called as Docker Image) & also lets you run Containerized application/software
+	
+
+Technical Deffinition:
+=======================
+
+Docker is an open source software platform to create, deploy and manage virtualized application
+containers on a common operating system (OS), with an ecosystem of allied tools.
+
+Docker is a set of platform as a service products that use OS-level virtualization to 
+deliver software in packages called containers.
+
+Benifits:
+============
+Containerization
+No pre allocation os RAM
+Can replicate same environment
+less cost
+less weight
+fast to fire up
+can run on physical/virtual/cloud
+can reuse
+can create in less time
+Installation of Docker:
+
+# yum install docker -y
+# systemctl start docker
+
+************************************
+Image Commands
+**************************************
+
+Scenario 1: 
+Search images on Docker Hub
+***************************
+Signinto docker hub : https://hub.docker.com/
+
+Go to search tab and enter Hello-world ==> images will be displayed, select the offical image
+When we run the image it will display welcome message to user.
+
+Scenarios2: 
+Search for an Image locally on docker host
+**************************************
+Go to docker host
+
+# docker search hello  // all images related to hello will be displayed.
+
+2. Pull an image from docker hub
+
+    # docker pull hello-world.   //Image will be pulled from docker Hub
+
+3. Check if Image is present in hub or not
+
+    # docker images   //image will be present, that it is pulled into the host
+
+Naming Convention for an Image:
+
+Imagename:tagname
+
+Userdefined image naming convention
+
+username/imagename:tagname
+
+4. Check specific details of image will be displayed.
+
+   # docker image hello-world   
+
+5. Run an Image
+
+   # docker run hello-world  // container will be created
+
+6. Check container is created
+
+   # docker ps -a
+
+7. Create a new container and give name to the container
+
+# docker run --name c1 hello-world
+
+Understanding Image more:
+
+Go to docker hub where all Images are present
+Here you can search any image that we want, check for official tag
+
+Naming convention of unofficial (user defined) Images
+Registory/username/repoName:tagname
+
+Naming convention of official Images
+Registry/repoName:tagname
+
+If no registryname is present by default it will be docker hub
+If no tagname then by default it will be latest
+
+
+6. Pull an Image and run the container together
+*****************************************
+# docker run --name u1 ubuntu
+# docker images
+# docker ps -a
+==> this will pull the ubuntu image first from hub
+--> then create a ubuntu conatiner with name as u1 in exited state
+==> So run command == PULL IMAGE and CREATE CONTAINER
+ ===> pull command ==> only pulls image
+
+7. START CONTAINER IN DETACH MODE (pull and run together again)
+************************************************************
+# docker run --name n1 nginx // image nginx will be pulled and container with name n1 will be running
+
+start the container in detach mode where in container will be running in background.
+
+
+# docker run --name n1 -d nginx  // starts container in detach mode
+
+# docker ps -a.   // gives all containers, nginx container running
+
+
+*********************************
+
+Delete all container
+
+docker rm -f $(docker ps -aq)
+
+docker system prune --all
+***************************************************
+Command line containers
+
+Creating container in interactive mode
+
+# docker run --name u1 -it ubuntu
+
+We will be in container now   
+#ls
+
+Out of container
+# ctlpctlq
+
+# docker attach u1
+Again inside the container
+
+Now use exit to come out
+
+Both ways we can come out of container in exit case the container will go to exited state.
+
+*************************************
+
+
+Creating container in interactive mode
+
+# docker run --name c1 -it centos
+
+We will be in container now   
+#ls
+# yum update -y
+# yum install git -y
+
+Out of container
+exit
+
+Container is exited now
+Start the conatiner again
+
+# docker start c1
+
+# docker attach c1
+
+# Ctldp +Ctlq
+
+# docker stop c1
+
+# docker rm c1
+**********************************************
+Creating a DB container
+
+REMOVE all images and container before this
+
+# docker run --name mydb -d -e MY_ROOT_PASSWORD=flm mysql:5
+
+PORT FORWARDING/PORT MAPPING
+****************************************
+
+# docker run --name c1 -d -p 8888:80 nginx  // creating container to be accessed from browser
+
+Go to browser
+
+Give public ip:8888
+
+*********************************************
+Automatic port mapping
+
+# docker run --name j1 -d -P jenkins
+
+# docker container ls
+
+OR
+
+# docker port containername
+
+On browser
+
+hostip:new port
+
+
+******************************************************
+Docker Volumes
+**********************************
+Docker Volume Containers
+**************************************
+# docker volume create myvol   // create a volume on host
+
+# docker volume ls    // list the volume on the host, myvol will be there
+
+# docker volume inspect myvol   // gives the path where volume is created on the host
+
+/var/lib/docker/volumes/myvol/_data   // copy this path on notepad
+
+# cd /var/lib/docker/volumes/myvol/_data  
+# ls // no files
+# cd
+
+MOUNT THE VOLUME ON A CONTAINER
+
+# docker run --name u1 -it -v myvol:/tmp ubuntu
+
+	# cd /tmp
+	# ls
+	# touch file1 file2
+	#ls
+# Ctlp+Ctlq
+Use the same path copied above
+# cd /var/lib/docker/volumes/myvol/_data  
+# ls // file1 and file2 files will be present
+
+Create 1 more new file here --> file should be available in container also
+
+# touch file3
+# ls
+#cd
+# docker ps -a
+# docker attach u2 
+# ls
+# cd /tmp
+# ls
+# file1, file2 , file3 will be there
+
+REMOVE THE CONTAINER AND CHECK IF FILES ARE AVIALBLE
+
+# docker rm -f u2
+
+# cd /var/lib/docker/volumes/myvol/_data 
+# ls  ==> still files will be available.
+
+Delete the volume :
+*********************
+Delete containers before.
+
+# docker volume rm myvol   // volume will be removed.
+*************************************************************
+
+COntainer&VolumeBackup
+==========================
+Backup the data volume from the data container named data-container-to-backup
+
+docker run --rm --volumes-from data-container-backup --name tmp-backup -v $(pwd):/backup ubuntu tar cvf /backup/backup.tar /folderToBackup
+Expand this tar file into a new container so we can commit it as part of its image
+
+docker run -d -v $(pwd):/backup --name data-backup ubuntu /bin/sh -c "cd / && tar xvf /backup/backup.tar"
+Commit and push the image with a desired tag ($VERSION)
+
+docker commit data-backup repo/data-backup:$VERSION
+docker push repo/data-backup:$VERSION
+Finally, lets clean up
+
+docker rm data-backup
+docker rmi $(docker images -f "dangling=true" -q)
+Now we have an image named data-backup in our repo that is simply a filesystem with the backup files and folders. In order use this image (aka restore from backup), we do the following:
+
+Run the data container with the data-backup image
+
+run -v /folderToBackup --entrypoint "bin/sh" --name data-container repo/data-backup:${VERSION}
+Run your whatEver image with volumes from the data-conainter
+
+docker run --volumes-from=data-container repo/whatEver
+
+
+
+**************************************************
+
+DOCKER FILE
+*****************************************
+Creating our own Images:
+
+2 ways:
+
+1. Creating an image from a running container
+2. Using a Docker file
+
+Method 1:Creating an image from a running container
+
+**********************************************
+
+# docker run --name c1 -it centos
+	#ls
+	# yum update -y
+	# yum install git -y
+	# git --version
+	# ctlp+ctlQ
+
+# docker commit c1 mycentosImage
+
+# docker images   // our image will be available with tag as latest
+
+//Create a container from our own Image
+
+# docker run --name c2 -it mycentosImage
+	
+push our image into Docker Hub:
+
+
+# docker tag mycentosImage:latest docker2practice/mycentosImage:latest
+
+# docker images   // new image with new name will be created
+
+# docker login   //loginto docker hub
+Username:
+Password:
+
+# docker push dockerusername/mycentosImage:latest   //image will be pushed to docker hub
+
+
+Method2 : Creating a docker file and building an image from it
+*******************************************************
+it is a simple txt file.
+
+# vim dockerfile
+	i
+
+FROM centos    // base image information
+MAINTAINER flm
+RUN yum -y update            // these are commands that we give for building the image
+RUN yum install git -y		// information about packages that shoudl be there on the image
+VOLUME /data
+:wq!
+
+# docker build -t mycentos:git .
+
+When we run the image -->container will be created.
+
+	# docker images
+
+
+	# docker run --name c1 -it mycentos1:dockerfile
+	
+
+==> data folder which is mounted for volume wll be there
+
+	
+
+OTher instructions that we can give in an Image :
+FROM: 
+
+MAINTAINER:
+
+RUN:
+
+CMD:
+
+VOLUME:
+
+EXPOSE:
+
+ADD:
+
+**************************************************
+
+DockerNetworking:
+======================
+
+        docker network ls
+   20  docker run -d --name myn1 nginx
+   21  docker ps -a
+   22  docker inspect myn1
+   23  clear
+   24  docker network create --driver bridge flm1
+   25  docker network ls
+   26  docker network create --driver bridge flm2
+   27  docker network ls
+   28  clear
+   29  docker run -itd --name b1 --network flm1 busybox
+   30  docker inspect b1
+   31  clear
+   32  docker run -itd --name b2 --network flm1 busybox
+   33  docker inspect b2
+   34  clear
+   35  docker attach b1
+   36  docker run -itd --name b3 --network flm2 busybox
+   37  docker inspect b3
+   38  clear
+   39  docker attach b3
+   40  docker attach b2
+   41  docker network connect flm2 b2
+   42  docker inspect b2
+   43  clear
+   44  docker attach b2
+
+docker_compose_files
+===========================
+
+
+Installation steps:
+========================
+
+
+Step 1. Download the latest Docker Compose version.:
+     wget https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)
+Step 2. Move the Docker Compose file into the system binaries.:
+	sudo mv docker-compose-$(uname -s)-$(uname -m) /usr/local/bin/docker-compose
+Step 3. Apply the right permissions.
+    sudo chmod -v +x /usr/local/bin/docker-compose
+Step 4. Verify installation.
+    docker-compose version
+
+vi docker-compose.yml
+
+UseCase 1
+==============
+Create a docker compose file for setting up a wordpress container and link 
+ with a mysql container
+---
+version: '3'
+
+services:
+ mydb:
+  image: mysql:5
+  environment:
+   MYSQL_ROOT_PASSWORD: psswd
+
+ mywordpress:
+  image: wordpress
+  ports:
+   - 9999:80
+  links:
+   - mydb:mysql
+...
+
+To start the containers
+docker-compose up 
+To start the containers indetached node
+docker-compose up -d
+
+To stop the containers
+docker-compose stop
+
+To stop and delete the containers
+docker-compose down
+
+To see the list of processes in the container
+docker-compose ps
+
+To start the stopped container
+docker-compose start
+
+To pause the executiong 
+docker-compose pause
+
+To unpause
+docker-compose unpause
+******************************************
+Create a docker compose file for seeting up the CI-CD environment
+where a jenkins contianer is linked with 2 tomcat contianer
+vim docker-compose.yml
+---
+version: '3'
+
+services:
+ jenkinsserver:
+  image: jenkins
+  ports:
+   - 5050:8080
+
+ qaserver:
+  image: tomcat
+  ports:
+   - 6060:8080
+  links:
+   - jenkinsserver:jenkins
+
+ prodserver:
+  image: tomcat
+  ports:
+   - 7070:8080
+  links:
+   - jenkinsserver:jenkins
+...
+=================================================================================
+Docker compose file to setup the LAMP environment
+
+vim docker-compose.yml
+
+version: '3'
+
+services:
+ mydb:
+  image: mysql
+  environment:
+   MYSQL_ROOT_PASSWORD: passwd
+
+ apache:
+  image: httpd
+  ports:
+   - 9090:80
+  links:
+   - mydb:mysql
+
+ php:
+  image: php:7.2-apache
+  links:
+   - mydb:mysql
+   - apache:httpd
+
+=================================================================================
+Docker compose file to setup the selenium testing environment where
+a hub container can be linked  with a chrome and firefox node containers
+
+---
+version: '3'
+
+services:
+ hub:
+  image: selenium/hub
+  ports:
+   - 4444:4444
+
+ chrome:
+  image: selenium/node-chrome-debug
+  ports:
+   - 5901:5900
+  links:
+   - hub:selenium
+
+ firefox:
+  image: selenium/node-firefox-debug
+  ports:
+   - 5902:5900
+  links:
+   - hub:selenium
+
+
+DockerSWARM_NOTES
+========================
+
+SETUP OF DOCKER SWARM:
+******************************
+Create 3 AWS instances and name them as Manager, worker 1 and worker 2.
+
+Go to git bash
+
+# cd downloads/
+
+# SSH path from AWS for manager
+
+# sudo su -
+
+# yum install docker
+
+# vim /etc/hostname  ==> to chnage the hostname of this machine to Manager
+
+:wq!  
+
+# init 6  ==> restart the machine
+
+
+Again open git bash
+
+# cd downloads/
+
+# SSH path from AWS for Worker1
+
+# sudo su -
+
+# yum install docker
+
+# vim /etc/hostname  ==> to chnage the hostname of this machine to Worker1
+
+:wq!  
+
+# init 6  ==> restart the machine
+
+Again open git bash
+
+# cd downloads/
+
+# SSH path from AWS for Worker2
+
+
+# sudo su -
+
+# yum install docker
+
+# vim /etc/hostname  ==> to chnage the hostname of this machine to Worker2
+
+:wq!  
+
+# init 6  ==> restart the machine
+
+****************************************
+Initialize the Swarm Manager:
+***************************************
+ON MANAGER:
+*************
+Go to the manager machine and give below command
+
+# systemctl start docker
+
+# docker swarm init --advertise-addr 172.31.17.248(privateip of manager)
+
+Curent node will be now be swarm Manager and it will generate a token id that can be executed on worker nodes so that they will join the swarm as workers.
+
+==> Copy the token id on notepad
+************************
+
+WORKER1 SETUP
+**********************
+
+# systemctl start docker
+
+paste the token command here from notepad  // as shown below:
+
+# docker swarm join --token SWMTKN-1-66xevqpe5r6h1gtcps1m867q8jcu93deyk87qudqdp7nyf8omk-7vna75w6jip5hmqp4h55bi3s3 172.31.17.248:2377
+
+// the worker1 will now join the swarm as worker
+It will give message as: This node joined a swarm as a worker.
+
+MANAGER NODE:
+
+Go to manager node and see if worker1 has joined the swarm or not
+
+# docker node ls
+
+2 nodes will be there .. maanager and worker1
+
+
+WORKER2 SETUP
+**********************
+
+# systemctl start docker
+
+paste the token command here from notepad  // as shown below:
+
+# docker swarm join --token SWMTKN-1-66xevqpe5r6h1gtcps1m867q8jcu93deyk87qudqdp7nyf8omk-7vna75w6jip5hmqp4h55bi3s3 172.31.17.248:2377
+
+// the worker2 will now join the swarm as worker
+It will give message as: This node joined a swarm as a worker.
+
+MANAGER NODE:
+
+Go to manager node and see if worker1 has joined the swarm or not
+
+# docker node ls
+
+3 nodes will be there .. maanager and worker1 and worker2
+
+**********SETUP COMPLETE********************************************
+
+
+SCEANRIO 1 : LOAD BALANCING or distribution of Service
+
+************************************************
+
+Here we will create a service nginx with 5 replicas and perform port mapping
+
+	# docker service create --name mywb -p 8989:80 --replicas 5 nginx
+
+==>This will create 5 replicas of nginx and it is distributed on the nodes.
+
+==> to check the services
+
+	# docker service ps mywb
+
+
+ List all services on SWARM
+*******************************
+	# docker service ls
+
+*********************************
+Delete service on the SWARm
+
+	# docker service rm mywb
+
+//removes service
+
+	# docker service ls  // no service will be there
+*****************************************
+Scaling
+****************************
+Scenario2:
+
+Using the concept of scaling we can increase or reduce the replicas
+
+
+1.Create tomcat service with replica 3 with posrt mapping
+
+# docker service create --name mytomcat  -p 9090:8080 --replicas 3 tomcat
+
+2. 	# docker service ps mytomcat
+
+3. Now scale up the service to 5
+
+	# docker service scale mytomcat=5
+
+4. check if 5 replicas of tomcat are running
+
+	# docker service ps mytomcat    
+
+// total of 5 services will be there 2 more services added.
+
+5. Now scale down the services to 3
+
+	# docker service scale mytomcat=3
+
+6.  check if 3 replicas of tomcat are running
+
+	# docker service ps mytomcat    
+
+// total of 3 services will be there.
+
+******************************************
+SCENARIO 3: FAILOVER
+**************************************
+A. Create a httpd service with 6 replicas and delete one replica running on the manager 
+
+1. Create httpd service with 6 replicas
+
+      # docker service create --name mywebserver -p 9090:80 --replicas 6 httpd
+
+2. Check if all 6 replicas are running or not.
+
+ 	# docker service ps mywebserver
+
+3. On the MANAGER machine, delete a replica
+
+	# docker ps -a  // replicas will be displayed
+	# docker rm -f containername  // replica will be deleted
+	
+# docker ps -a
+# docker service ps mywebserver
+
+3. Drain worker1 from the swarm 
+	
+	# docker node ls
+	# docker node update --availability drain Worker1
+
+4. check if all 6 replicas are running on manager and worker2
+ 
+	# docker service ps mywebserver
+	
+	# docker service ps mywebserver | grep Running
+
+5. Make worker1 join the swarm again
+
+        # docker node update --availability active Worker1
+
+6. check if all 6 replicas are running on manager and worker1 and 2
+ 
+	# docker service ps mywebserver
+
+7. we can also go to worker2 git bash and leave the swarm
+	# systemctl start docker
+	# docker swarm leave
+
+
+8.Connect back to manager
+
+# docker node ls
+
+worker 2 will be in status down and Active
+
+9. Remove the worker2 node from the swarm
+
+	# docker node rm Worker2
+
+Worker 2 will not be in swarm now.
+
+	# docker node ls
+
+9.Check if all the replicas are still running or not.
+
+	# docker services ps webserver
+
+10. join back the worker2 to swarm
+
+	# docker swarm join-token worker
+
+copy the token and paste it on worker 2 machine
+
+docker swarm join --token SWMTKN-1-195rkd1a6332n2izpccyfn9d29q1mqs72ja0d4ueo63xyetrum-6t7d8m9tfcw9qtj86ske56p0q 172.31.44.159:2377
+
+Worker2 will join the swarm again
+
+on Manager machine:  # docker node ls   // worker 2 will be active and running
+
+**********************************************************
+ROLLING UPDATE/ ROLLING OUT:
+*************************************************************
+
+Create redis:3 with 5 replicas and update it to redis:4 and latter roll it back to redis:3
+
+1.Create redis:3 with 5 replicas
+
+# docker service create --name myredis --replicas 5 redis:3
+
+2.Check if 5 replicas are running or not
+
+Docker service ps myredis
+
+3.perform a rolling update from redis:3 to redis:4
+
+# docker service update --image redis:4 myredis
+
+4.Check if 5 replicas of redis:3 are shutdown and redis:4 are up and running
+
+# docker service ps myredis
+
+5.Perform roll back from redis:4 to redis:3
+
+# docker service update --rollback myredis
+
+6.Check if 5 replicas of redis:4 are shutdown and redis:3 are up and running
+
+# docker service ps myredis
