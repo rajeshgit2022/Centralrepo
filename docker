@@ -33,20 +33,6 @@ Installation of Docker:
 Image Commands
 **************************************
 
-Scenario 1: 
-Search images on Docker Hub
-***************************
-Signinto docker hub : https://hub.docker.com/
-
-Go to search tab and enter Hello-world ==> images will be displayed, select the offical image
-When we run the image it will display welcome message to user.
-
-Scenarios2: 
-Search for an Image locally on docker host
-**************************************
-Go to docker host
-
-# docker search hello  // all images related to hello will be displayed.
 
 2. Pull an image from docker hub
 
@@ -61,19 +47,7 @@ Go to docker host
 
    # docker image hello-world   
 
-5. Run an Image
 
-   # docker run hello-world  // container will be created
-
-6. Check container is created
-
-   # docker ps -a
-
-7. Create a new container and give name to the container
-
-# docker run --name c1 hello-world
-
-Understanding Image more:
 
 
 6. Pull an Image and run the container together
@@ -153,11 +127,7 @@ Start the conatiner again
 
 # docker rm c1
 **********************************************
-Creating a DB container
 
-REMOVE all images and container before this
-
-# docker run --name mydb -d -e MY_ROOT_PASSWORD=flm mysql:5
 
 
 
