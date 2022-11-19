@@ -126,20 +126,11 @@ Copy the URL of the repository to  add local repo to external repo:
 
 # git remote add origin [URL of externalrepo]
 
-# git remote -v // will show that origin is mapped to external repo url
-
-PUSH files of master into external repo
 # git branch main 
-# git push origin main ==> pushes master files to origin(external repo)
+
+# git push origin main
 Username: 
 Passowrd: 
 //Now go to external repo and see all the files of master will be available
 
-PUSH branch b1 onto external repo
-
-# git push origin b1  ==> pushes files of b1 branch onto external repo
-It will ask for username and password ..give follwoing details:
-Username: 
-Passowrd:
-Now go to external repo and see all the files of b1 will be available.
 
