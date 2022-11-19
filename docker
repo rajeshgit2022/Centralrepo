@@ -56,13 +56,6 @@ Go to docker host
 
     # docker images   //image will be present, that it is pulled into the host
 
-Naming Convention for an Image:
-
-Imagename:tagname
-
-Userdefined image naming convention
-
-username/imagename:tagname
 
 4. Check specific details of image will be displayed.
 
@@ -81,18 +74,6 @@ username/imagename:tagname
 # docker run --name c1 hello-world
 
 Understanding Image more:
-
-Go to docker hub where all Images are present
-Here you can search any image that we want, check for official tag
-
-Naming convention of unofficial (user defined) Images
-Registory/username/repoName:tagname
-
-Naming convention of official Images
-Registry/repoName:tagname
-
-If no registryname is present by default it will be docker hub
-If no tagname then by default it will be latest
 
 
 6. Pull an Image and run the container together
@@ -178,29 +159,7 @@ REMOVE all images and container before this
 
 # docker run --name mydb -d -e MY_ROOT_PASSWORD=flm mysql:5
 
-PORT FORWARDING/PORT MAPPING
-****************************************
 
-# docker run --name c1 -d -p 8888:80 nginx  // creating container to be accessed from browser
-
-Go to browser
-
-Give public ip:8888
-
-*********************************************
-Automatic port mapping
-
-# docker run --name j1 -d -P jenkins
-
-# docker container ls
-
-OR
-
-# docker port containername
-
-On browser
-
-hostip:new port
 
 
 ******************************************************
